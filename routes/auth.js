@@ -8,6 +8,7 @@ router.get("/login", (req, res) => {
   res.render("login", {
     title: "Login | Abu",
     isLogin: true,
+    loginError: req.flash("loginError"),
   });
 });
 
@@ -15,22 +16,30 @@ router.get("/register", (req, res) => {
   res.render("register", {
     title: "Register | Abu",
     isRegister: true,
+    redisterError: req.flash("redisterError"),
   });
 });
 
 router.post("/login", async (req, res) => {
-  const existUser = await User.findOne({ email: req.body.email });
-  if (!existUser) {
-    console.log("User not found");
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    req.flash("loginError", "All fields is required");
+    res.redirect("/login");
     return;
   }
 
-  const isPassEqul = await bcrytp.compare(
-    req.body.password,
-    existUser.password
-  );
+  const existUser = await User.findOne({ email });
+  if (!existUser) {
+    req.flash("loginError", "User not found");
+    res.redirect("/login");
+    return;
+  }
+
+  const isPassEqul = await bcrytp.compare(password, existUser.password);
   if (!isPassEqul) {
-    console.log("Password wrong");
+    req.flash("loginError", "Password wrong");
+    res.redirect("/login");
     return;
   }
 
@@ -39,11 +48,27 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  const hashedPassword = await bcrytp.hash(req.body.password, 10);
+  const { firstname, lastname, email, password } = req.body;
+
+  if (!firstname || !lastname || !email || !password) {
+    req.flash("redisterError", "All fields is required");
+    res.redirect("/register");
+    return;
+  }
+
+  const candidate = await User.findOne({ email });
+
+  if (candidate) {
+    req.flash("redisterError", "User already exist");
+    res.redirect("/register");
+    return;
+  }
+
+  const hashedPassword = await bcrytp.hash(password, 10);
   const userData = {
-    firstName: req.body.firstname,
-    lastName: req.body.lastname,
-    email: req.body.email,
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
     password: hashedPassword,
   };
   const user = await User.create(userData);
