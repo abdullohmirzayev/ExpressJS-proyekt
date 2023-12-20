@@ -18,13 +18,28 @@ router.get("/register", (req, res) => {
   });
 });
 
-router.post("/login", (req, res) => {
-  console.log(req.body);
+router.post("/login", async (req, res) => {
+  const existUser = await User.findOne({ email: req.body.email });
+  if (!existUser) {
+    console.log("User not found");
+    return;
+  }
+
+  const isPassEqul = await bcrytp.compare(
+    req.body.password,
+    existUser.password
+  );
+  if (!isPassEqul) {
+    console.log("Password wrong");
+    return;
+  }
+
+  console.log(existUser);
   res.redirect("/");
 });
 
 router.post("/register", async (req, res) => {
-  const hashedPassword = await bcrytp.hash(req.body.password, 10)
+  const hashedPassword = await bcrytp.hash(req.body.password, 10);
   const userData = {
     firstName: req.body.firstname,
     lastName: req.body.lastname,
