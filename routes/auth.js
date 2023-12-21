@@ -2,26 +2,19 @@ import { Router } from "express";
 import User from "../models/user.js";
 import bcrytp from "bcrypt";
 import { genereteJWTToken } from "../services/token.js";
+import checkAuth from "../middieware/check.js";
 
 const router = Router();
 
-router.get("/login", (req, res) => {
-  if (req.cookies.token) {
-    res.redirect("/");
-    return;
-  }
+router.get("/login", checkAuth, (req, res) => {
   res.render("login", {
     title: "Login | Abu",
     isLogin: true,
-    loginError: req.flash("loginError"  ),
+    loginError: req.flash("loginError"),
   });
 });
 
-router.get("/register", (req, res) => {
-  if (req.cookies.token) {
-    res.redirect("/");
-    return;
-  }
+router.get("/register", checkAuth, (req, res) => {
   res.render("register", {
     title: "Register | Abu",
     isRegister: true,
