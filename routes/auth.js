@@ -1,6 +1,7 @@
 import { Router } from "express";
 import User from "../models/user.js";
 import bcrytp from "bcrypt";
+import { genereteJWTToken } from "../services/token.js";
 
 const router = Router();
 
@@ -43,7 +44,8 @@ router.post("/login", async (req, res) => {
     return;
   }
 
-  console.log(existUser);
+  const token = genereteJWTToken(existUser._id);
+  res.cookie("token", token, { httpOnly: true, secure: true });
   res.redirect("/");
 });
 
@@ -66,12 +68,14 @@ router.post("/register", async (req, res) => {
 
   const hashedPassword = await bcrytp.hash(password, 10);
   const userData = {
-    firstName: firstName,
-    lastName: lastName,
+    firstName: firstname,
+    lastName: lastname,
     email: email,
     password: hashedPassword,
   };
   const user = await User.create(userData);
+  const token = genereteJWTToken(user._id);
+  res.cookie("token", token, { httpOnly: true, secure: true });
   res.redirect("/");
 });
 
