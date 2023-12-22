@@ -8,9 +8,15 @@
             <p class="card-text fw-bold">{{title}}</p>
             <p class="card-text">{{description}}</p>
             <div class="d-flex justify-content-between align-items-center">
-              <div class="avatar bg-primary">
-                <p>{{getFullNameFirstCharacter user.firstName user.lastName}}</p>
+              <div class="d-flex gap-2 aline-items-center">
+                <div class="avatar bg-primary">
+                  <p>{{getFullNameFirstCharacter
+                      user.firstName
+                      user.lastName
+                    }}</p>
+                </div>
               </div>
+              <p class="p-0 m-0">{{user.firstName}} {{user.lastName}} </p>
               <small class="text-body-secondary fs-5">{{price}}.00$</small>
             </div>
           </div>
